@@ -1,0 +1,33 @@
+<snippet>
+	<content><![CDATA[
+${1:// Modulo Power
+ll modpow(ll a, ll b, ll MOD=mod) {
+	ll p = 1;
+	while (b > 0) {
+		if (b & 1)
+			p = p * a % MOD;
+		a = a * a % MOD;
+		b >>= 1;
+	\}
+	return p;
+\}
+}${2:// Modular Inverse
+ll modinv(ll a, ll MOD=mod) {
+	ll m = MOD, y = 0, x = 1;
+	while (a > 1) {
+		ll q = a / m, t = m;
+		m = a % m;
+		a = t;
+		t = y;
+		y = x - q * y;
+		x = t;
+	\}
+	return x < 0 ? x + mod : x;
+\}
+}${0}
+]]></content>
+	<!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+	<tabTrigger>modulo</tabTrigger>
+	<!-- Optional: Set a scope to limit where the snippet will trigger -->
+	<scope>source.c++</scope>
+</snippet>

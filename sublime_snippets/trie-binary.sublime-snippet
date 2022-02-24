@@ -1,0 +1,91 @@
+<snippet>
+	<content><![CDATA[
+// Binary Trie
+template <typename T = int>
+class BinaryTrie {
+	private:
+		struct node {
+			node *left, *right;
+			
+			node() {
+				left = right = nullptr;
+			}
+		};
+		
+		node* root;
+		int n;
+		
+		void clear(node* _root) {
+			if(_root == nullptr)
+				return;
+				
+			clear(_root -> left);
+			clear(_root -> right);
+			
+			delete _root;
+		}
+		
+	public:
+		BinaryTrie() {
+			root = new node();
+			n = sizeof(T) * CHAR_BIT;
+		}
+		
+		~BinaryTrie() {
+			clear(root);
+		}
+		
+		void insert(T x) {
+			bool bits[n] = {};
+			for(int i = 0; i < n; ++i) 
+				bits[i] = x % 2, x /= 2;
+			
+			node* temp = root;
+			for(int i = n - 1; i >= 0; --i) {
+				if(bits[i]) {
+					if(temp -> right == nullptr)
+						temp -> right = new node();
+					temp = temp -> right;
+					
+				} else {
+					if(temp -> left == nullptr)
+						temp -> left = new node();
+					temp = temp -> left;
+				}
+			}
+		}
+		
+		T max_xor(T x) {
+			T res = 0;
+			bool bits[n] = {};
+			for(int i = 0; i < n; ++i)
+				bits[i] = x % 2, x /= 2;
+			
+			node* temp = root;
+			for(int i = n - 1; i >= 0; --i) {
+				assert(temp -> left != nullptr || temp -> right != nullptr);
+				
+				if(bits[i]) {
+					if(temp -> left != nullptr)
+						res |= (1 << i), temp = temp -> left;
+					else
+						temp = temp -> right;
+						
+				} else {
+					if(temp -> right != nullptr)
+						res |= (1 << i), temp = temp -> right;
+					else
+						temp = temp -> left;
+						
+				}
+			}
+			return res;
+		}
+};
+${1}${0}
+]]></content>
+	<!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+	<tabTrigger>trie-binary</tabTrigger>
+	<!-- Optional: Set a scope to limit where the snippet will trigger -->
+	<scope>source.c++</scope>
+</snippet>

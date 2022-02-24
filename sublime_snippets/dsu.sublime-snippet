@@ -1,0 +1,32 @@
+<snippet>
+	<content><![CDATA[
+class dsu {
+private:
+	vi p, rank;
+public:
+	dsu(int n) {
+		p.assign(n, 0);
+		rank.assign(n, 0);
+		for (int i = 0;i < n;i++)
+			p[i] = i;
+	}
+	int find(int a) {
+		return p[a] == a ? a : p[a] = find(p[a]);
+	}
+	bool isSameSet(int a, int b) {
+		return find(a) == find(b);
+	}
+	void un(int a, int b) {
+		int x = find(a), y = find(b);
+		rank[x] < rank[y] ? p[x] = y : p[y] = x;
+		if (rank[x] == rank[y])
+			rank[x]++;
+	}
+};
+${1}${0}
+]]></content>
+	<!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+	<tabTrigger>dsu</tabTrigger>
+	<!-- Optional: Set a scope to limit where the snippet will trigger -->
+	<scope>source.c++</scope>
+</snippet>

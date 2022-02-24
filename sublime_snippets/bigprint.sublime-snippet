@@ -1,0 +1,26 @@
+<snippet>
+	<content><![CDATA[
+string print_int128(__int128 a) {
+    if (a == 0) {
+        return "0";
+    }
+    string s;
+    bool neg = (a < 0);
+    if (neg)
+        a *= -1;
+    while (a > 0) {
+        s += (char)('0' + a % 10);
+        a /= 10;
+    }
+    if (neg)
+        s += '-';
+    reverse(all(s));
+    return s;
+}
+${1}${0}
+]]></content>
+	<!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+	<tabTrigger>bigprint</tabTrigger>
+	<!-- Optional: Set a scope to limit where the snippet will trigger -->
+	<scope>source.c++</scope>
+</snippet>

@@ -1,0 +1,35 @@
+{
+    "cmd": ["g++-11", "-DLOCAL", "-DUSE_IO_FILES", "-std=c++17", "-Wall", "${file}", "-o", "${file_base_name}"],
+    "selector": "source.c++",
+    "working_dir": "$file_path",
+    "variants": [
+        {
+            "name": "Run Previous Build",
+            "shell_cmd": "./${file_base_name}",
+        },
+        {
+            "name": "Build (-fsanitize)",
+            "shell_cmd": "g++-11 -DLOCAL -DUSE_IO_FILES -std=c++17 -Wshadow -Wall ${file} -o ${file_base_name} -g -fsanitize=leak -fsanitize=address -D_GLIBCXX_DEBUG",
+        },
+        {
+            "name": "Build and Run (-fsanitize)",
+            "shell_cmd": "g++-11 -DLOCAL -DUSE_IO_FILES -std=c++17 -Wshadow -Wall ${file} -o ${file_base_name} -g -fsanitize=leak -fsanitize=address -D_GLIBCXX_DEBUG && ./${file_base_name}",
+        },
+        {
+            "name": "Build Interactive (-fsanitize)",
+            "shell_cmd": "g++-11 -DLOCAL -std=c++17 -Wshadow -Wall ${file} -o ${file_base_name} -g -fsanitize=leak -fsanitize=address -D_GLIBCXX_DEBUG",
+        },
+        {
+            "name": "Build (-O3)",
+            "shell_cmd": "g++-11 -DLOCAL -DUSE_IO_FILES -std=c++17 -Wshadow -Wall -O3 ${file} -o ${file_base_name}",
+        },
+        {
+            "name": "Build and Run (-O3)",
+            "shell_cmd": "g++-11 -DLOCAL -DUSE_IO_FILES -std=c++17 -Wshadow -Wall -O3 ${file} -o ${file_base_name} && ./${file_base_name}",
+        },
+        {
+            "name": "Build Interactive (-O3)",
+            "shell_cmd":  "g++-11 -DLOCAL -std=c++17 -Wshadow -Wall -O3 ${file} -o ${file_base_name}",
+        },
+    ]
+}

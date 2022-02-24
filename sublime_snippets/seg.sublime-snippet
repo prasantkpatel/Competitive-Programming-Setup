@@ -1,0 +1,168 @@
+<snippet>
+	<content><![CDATA[
+// Segment Tree
+template <typename node, typename update>
+class segment_tree {
+	private:
+		/*** 
+		 * t: A sequence of tree nodes.
+		 * 
+		 * u: A sequence of tree updates.
+		 * 
+		 * lazy: A sequence of flags to check if there are 
+		 * any pending updates on a node.
+		 * 
+		 * n: The size of segment tree
+		 * 
+		 * node_identity: An identity element for a tree node such 
+		 * that combining any node with node_identity results in
+		 * node itself.
+		 * 
+		 * update_identity: An identity element for an update node 
+		 * such that applying such update to a node leaves the node
+		 * unchanged. Also, combining any update with the update_identity 
+		 * results in update itself.
+		 * 
+		 **/
+		vector<node> t;
+		vector<update> u;
+		vector<bool> lazy;
+		int n;
+		node node_identity;
+		update update_identity;
+		
+		template <typename T>
+		void build(const T &a, const int32_t k, const int32_t tl, const int32_t tr) {
+			if(tl > tr) return;
+			if(tl == tr) {
+				t[k] = node(a[tl]);
+				return;
+			}
+			
+			const int32_t tm = (tl + tr) >> 1;
+			build(a, k << 1, tl, tm);
+			build(a, k << 1 | 1, tm + 1, tr);
+			
+			t[k].combine(t[k << 1], t[k << 1 | 1]);
+		}
+		
+		node query(const int32_t k, const int32_t tl, const int32_t tr, const int32_t l, const int32_t r) {
+			if(tl > tr || l > r || l < tl || r > tr)
+				return node_identity;
+			if(tl == l && tr == r)
+				return t[k];
+			
+			push(k, tl, tr);
+			const int32_t tm = (tl + tr) >> 1;
+			node res;
+			if(r <= tm)
+				res = query(k << 1, tl, tm, l, r);
+			else if(l > tm)
+				res = query(k << 1 | 1, tm + 1, tr, l, r);
+			else
+				res.combine(query(k << 1, tl, tm, l, tm),
+				query(k << 1 | 1, tm + 1, tr, tm + 1, r));
+			
+			return res;
+		}
+		
+		void upd(const int32_t k, const int32_t tl, const int32_t tr, const int32_t l, const int32_t r, const update x) {
+			if(tl > tr || l > r || l < tl || r > tr) 
+				return;
+			if(tl == l && tr == r) {
+				apply(k, tl, tr, x);
+				return;
+			}
+			
+			push(k, tl, tr);
+			const int32_t tm = (tl + tr) >> 1;
+			if(r <= tm)
+				upd(k << 1, tl, tm, l, r, x);
+			else if(l > tm)
+				upd(k << 1 | 1, tm + 1, tr, l, r, x);
+			else
+				upd(k << 1, tl, tm, l, tm, x),
+				upd(k << 1 | 1, tm + 1, tr, tm + 1, r, x);
+			
+			t[k].combine(t[k << 1], t[k << 1 | 1]);
+		}
+		
+		void push(const int32_t k, const int32_t tl, const int32_t tr) {
+			if(!lazy[k])
+				return; // no updates pending
+				
+			const int32_t tm = (tl + tr) >> 1;
+			apply(k << 1, tl, tm, u[k]);
+			apply(k << 1 | 1, tm + 1, tr, u[k]);
+			
+			lazy[k] = 0;
+			u[k] = update_identity;
+		}
+		
+		void apply(const int32_t k, const int32_t tl, const int32_t tr, const update x) {
+			t[k].apply(x, tl, tr);
+			if(tl == tr) return;
+			
+			u[k].combine(x, tl, tr);
+			lazy[k] = 1;
+		}
+		
+	public:
+		segment_tree(int N) {
+			t.resize(4 * N);
+			u.resize(4 * N);
+			lazy.resize(4 * N);
+			n = N;
+			node_identity = node();
+			update_identity = update();
+		}
+		
+		// Add extra methods if necessary
+		node query(const int32_t l, const int32_t r) {
+			return query(1, 0, n - 1, l, r);
+		}
+		template <typename T>
+		void build(const T &a) {
+			build(a, 1, 0, n - 1);
+		}
+		void upd(const int32_t l, const int32_t r, const update x) {
+			upd(1, 0, n - 1, l, r, x);
+		}
+};
+// Generic Update and Node structures
+struct update {
+	ll ${3:a} = ${4:0};
+	
+	update() {};
+	update(ll a) {
+		$6
+	};
+	
+	void combine(const update x, int tl, int tr) {
+		$0
+	}
+};
+
+struct node {
+	ll ${1:s} = ${2:0};
+	
+	node() {}
+	node(ll x) {
+		$5
+	}
+	
+	void combine(const node a, const node b) {
+		$7
+	}
+	
+	void apply(const update x, int tl, int tr) {
+		$8
+	}
+};
+
+]]></content>
+	<!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+	<tabTrigger>seg</tabTrigger>
+	<!-- Optional: Set a scope to limit where the snippet will trigger -->
+	<scope>source.c++</scope>
+</snippet>

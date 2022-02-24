@@ -1,0 +1,89 @@
+<snippet>
+	<content><![CDATA[
+// Trie
+template <int n=26>
+class Trie {
+	private:
+		char l;
+		struct node {
+			bool isTerminal;
+			node* next[n];
+			int _count;
+			
+			node() {
+				for(int i = 0; i < n; ++i)
+					next[i] = nullptr;
+				isTerminal = false;
+				_count = 0;
+			}
+		};
+		
+		node* root;
+
+		void clear(node *_root) {
+			if(_root == nullptr)
+				return;
+
+			for(int i = 0; i < n; ++i) {
+				clear(_root -> next[i]);
+			}
+			delete _root;
+		}
+		
+	public:
+		Trie() {
+			assert('a' + n - 1 <= CHAR_MAX);
+			l = 'a';
+			root = new node();
+		}
+
+		Trie(char _l) {
+			assert(_l + n - 1 <= CHAR_MAX);
+			l = _l;
+			root = new node();
+		}
+
+		~Trie() {
+			clear(root);
+		}
+
+		void assertVocab(const string &s) {
+			for(auto &c : s)
+				assert(c >= l && c < n + l);
+		}
+
+		void insert(const string &s) {
+			assertVocab(s);
+			if(isPresent(s))
+				return;
+				
+			node* temp = root;
+			for(char c : s) {
+				++temp -> _count;
+				if(temp -> next[c - l] == nullptr)
+					temp -> next[c - l] = new node;
+				temp = temp -> next[c - l];
+			}
+			
+			temp -> isTerminal = true;
+			++temp -> _count;
+		}
+		
+		bool isPresent(const string &s) {
+			assertVocab(s);
+			node* temp = root;
+			for(char c : s) {
+				if(temp -> next[c - l] == nullptr)
+					return false;
+				temp = temp -> next[c - l];
+			}
+			return temp -> isTerminal;
+		}
+};
+${1}${0}
+]]></content>
+	<!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+	<tabTrigger>trie</tabTrigger>
+	<!-- Optional: Set a scope to limit where the snippet will trigger -->
+	<scope>source.c++</scope>
+</snippet>

@@ -1,0 +1,26 @@
+<snippet>
+	<content><![CDATA[
+// Disjoint Set Union - 2
+const int ${1:mxN} = ${2:2e5+1};
+
+int parent[$1];
+
+void build(int n) {
+	for (int i = 0;i < n;i++)
+		parent[i] = i;
+}
+
+int findt(int a) {
+	return parent[a] == a ? a : parent[a] = findset(parent[a]);
+}
+
+void un(int a, int b) {
+	parent[findset(a)] = findset(b);
+}
+${0}
+]]></content>
+	<!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+	<tabTrigger>dsu-global</tabTrigger>
+	<!-- Optional: Set a scope to limit where the snippet will trigger -->
+	<scope>source.c++</scope>
+</snippet>
