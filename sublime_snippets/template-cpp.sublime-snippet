@@ -74,10 +74,10 @@ int main() {
 
 	int tc = 1;
 
- 	${1:cin >> tc;
+ 	${2:cin >> tc;
 	}for(int i = 1; i <= tc; ++i) {
-		${2:case_g(i);
-		}solve(i);
+		${3://}case_g(i);
+		solve(i);
 	}
 	return 0;
 }
