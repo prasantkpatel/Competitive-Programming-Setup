@@ -28,6 +28,35 @@ using namespace std;
 #define all(v) v.begin(), v.end()
 #define case_g(x) cout<<"Case #"<<x<<": "
 
+// Debugging template
+#ifndef LOCAL
+#define cerr if (false) cerr
+#endif
+void __print(int x) {cerr << x;}
+void __print(long x) {cerr << x;}
+void __print(long long x) {cerr << x;}
+void __print(unsigned x) {cerr << x;}
+void __print(unsigned long x) {cerr << x;}
+void __print(unsigned long long x) {cerr << x;}
+void __print(float x) {cerr << x;}
+void __print(double x) {cerr << x;}
+void __print(long double x) {cerr << x;}
+void __print(char x) {cerr << '\'' << x << '\'';}
+void __print(const char *x) {cerr << '\"' << x << '\"';}
+void __print(const string &x) {cerr << '\"' << x << '\"';}
+void __print(bool x) {cerr << (x ? "true" : "false");}
+template<typename T, typename V>
+void __print(const pair<T, V> &x) {cerr << '{'; __print(x.first); cerr << ','; __print(x.second); cerr << '}';}
+template<typename T>
+void __print(const T &x) {int f = 0; cerr << '{'; for (auto &i: x) cerr << (f++ ? "," : ""), __print(i); cerr << "}";}
+void _print() {cerr << "]\n";}
+template <typename T, typename... V>
+void _print(T t, V... v) {__print(t); if (sizeof...(v)) cerr << ", "; _print(v...);}
+template<typename T>
+void _printA(T *t, long long sz) { cout<<" { "; for (long long i=0; i<sz; i++) cout<<"["<<i<<"] = "<< t[i]<<endl; cout<<" } \n";}
+#define debug(x...) cerr << "[" << #x << "] = ["; _print(x)
+#define debugA(x, y) cerr << "[" << #x << "] = "; _printA(x, y)
+
 // Aliases
 using ll = long long;
 using ld = long double;
@@ -55,72 +84,60 @@ constexpr char nl = '\n';
 void precompute() {
 }
 
-template <typename T>
+// Sparse Table
+template<typename T>
 class sparse_table {
 private:
 	inline static int LOG(int n) {
 		return sizeof(int) * CHAR_BIT - __builtin_clz(n) - 1;
 	}
 
-	template <typename F>
 	struct op {
 	private:
 		T __identity;
-		F __combinator;
+		function<T(T, T)> __combinator;
 		bool __is_overlap_agnostic; // true if queries can be answered by overlapping ranges
-	
+
 	public:
 		op() {}
-		op(T _identity, F _combinator, bool _is_overlap_agnostic) {
+		op(T _identity, function<T(T, T)> _combinator, bool _is_overlap_agnostic) {
 			__identity = _identity;
 			__combinator = _combinator;
 			__is_overlap_agnostic = _is_overlap_agnostic;
 		}
 
-		T combine(const T &x, const T &y) {
+		T inline combine(const T &x, const T &y) {
 			return __combinator(x, y);
 		}
 
-		T identity() {
+		T inline identity() {
 			return __identity;
 		}
 
-		bool is_overlap_agnostic() {
+		bool inline is_overlap_agnostic() {
 			return __is_overlap_agnostic;
 		}
 	};
 
-	enum operations {
-		MIN, MAX, GCD, SUM, XOR, AND, OR, NOP
-	};
-
-	// struct MIN {
-	// private:
-	// 	auto static min_func = [](const T &x, const T &y){return min(x, y);};
-	// 	const static op<decltype(min_func)> MIN = op(numeric_limits<T>::max(), min_func, true);
-
-	// public:
-	// 	auto assign() {
-	// 		return op;
-	// 	}
-	// 	const static inline op MAX = op(numeric_limits<T>::min(), [](const T &x, const T &y) {return max(x, y);}, true);
-	// 	const static inline op GCD = op(T(0), [](const T &x, const T &y) {return __gcd(x, y);}, true);
-	// 	const static inline op SUM = op(T(0), [](const T &x, const T &y) {return x + y;}, false);
-	// 	const static inline op XOR = op(T(0), [](const T &x, const T &y) {return x ^ y;}, false);
-	// 	const static inline op AND = op(T(1), [](const T &x, const T &y) {return x & y;}, true);
-	// 	const static inline op OR = op(T(0), [](const T &x, const T &y) {return x | y;}, true);
-	// };
-
-	auto static min_func = [](const T &x, const T &y) {return min(x, y);};
-	const static inline 
 	vector<vector<T>> table;
-	int n, spS, which;
+	int n, spS;
+	op operation;
 
 public:
-	static operations use;
+	struct use {
+	public:
+		const static inline op MIN = op(numeric_limits<T>::max(), [](const T &x, const T &y) {return min(x, y);}, true);
+		const static inline op MAX = op(numeric_limits<T>::min(), [](const T &x, const T &y) {return max(x, y);}, true);
+		const static inline op GCD = op(T(0), [](const T &x, const T &y) {return __gcd(x, y);}, true);
+		const static inline op SUM = op(T(0), [](const T &x, const T &y) {return x + y;}, false);
+		const static inline op XOR = op(T(0), [](const T &x, const T &y) {return x ^ y;}, false);
+		const static inline op AND = op(T(1), [](const T &x, const T &y) {return x & y;}, true);
+		const static inline op OR = op(T(0), [](const T &x, const T &y) {return x | y;}, true);
+	};
 
-	sparse_table(const operations _which) {
-		n = 0, spS = 0, which = static_cast<int>(_which);
+	sparse_table(const op &_operation) {
+		n = 0, spS = 0;
+		operation = _operation;
 	}
 
 	sparse_table(T _identity, function<T(T, T)> _combinator, bool _is_overalp_agnostic) {
@@ -159,6 +176,27 @@ public:
 		}
 	}
 
+	template <typename V>
+	void build(V a[], int m) {
+		n = max(n, m);
+		spS = LOG(n);
+
+		table.resize(n);
+		for(int i = 0; i < n; ++i) {
+			table[i].resize(spS + 1, operation.identity());
+		}
+
+		for(int i = 0; i < m; ++i) {
+			table[i][0] = static_cast<T>(a[i]);
+		}
+
+		for(int j = 1; j <= spS; ++j) {
+			for(int i = 0; i + (1 << j) <= m; ++i) {
+				table[i][j] = operation.combine(table[i][j - 1], table[i + (1 << (j - 1))][j - 1]);
+			}
+		}
+	}
+
 	T query(int l, int r) {
 		T res = operation.identity();
 		if(l < 0 || r < 0 || l >= n || r >= n || l > r) {
@@ -176,23 +214,34 @@ public:
 		return res;
 	}
 };
+sparse_table<int> sps(sparse_table<int>::use::GCD);
 
 void solve(int tc=1) {
-	int n, q;
-	cin >> n >> q;
+	int n;
+	cin >> n;
+	
+	int a[2*n];
+	for(int i = 0; i < n; ++i) cin >> a[i], a[i + n] = a[i];
+	
+	sps.build(a, 2 * n);
 
-	vi a(n);
-	for(int i = 0; i < n; ++i) {
-		cin >> a[i];
+	int x = 0;
+	for(int j = n; j > 0; j /= 2) {
+		
+		while(x + j <= n) {
+			int k = x + j, g = sps.query(0, k - 1);
+			bool ok = 0;
+			
+			for(int i = 1; i < n; ++i) {
+				if(sps.query(i, i + k - 1) != g) {
+					x += j, ok = 1;
+					break;
+				}
+			}
+			if(!ok) break;
+		}
 	}
-
-	sparse_table<ll> sps(sparse_table<ll>::use::SUM);
-	sps.build(a);
-	while(q--) {
-		int l, r; cin >> l >> r;
-		--l, --r;
-		cout << sps.query(l, r) << nl;
-	}
+	cout << x << nl;
 }
 
 int main() {
@@ -208,7 +257,8 @@ int main() {
 
 	int tc = 1;
 
- 	for(int i = 1; i <= tc; ++i) {
+ 	cin >> tc;
+	for(int i = 1; i <= tc; ++i) {
 		//case_g(i);
 		solve(i);
 	}
