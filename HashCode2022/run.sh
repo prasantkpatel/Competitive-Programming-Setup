@@ -30,13 +30,13 @@ if [ -z "$2" ]; then
 fi
 
 
-g++-11 -std=c++17 "$1.cpp" -o sol
-g++-11 -std=c++17 "$2.cpp" -o brute
-g++-11 -std=c++17 "gen.cpp" -o gen
+g++ -std=c++17 "$1.cpp" -o sol
+g++ -std=c++17 "$2.cpp" -o brute
+g++ -std=c++17 "gen.cpp" -o gen
 
 # Check if the third command line argument is unitialized
 if [ ! -z "$3" ]; then
-    g++-11 -std=c++17 "$3.cpp" -o check
+    g++ -std=c++17 "$3.cpp" -o check
 fi
 
 for((i = 1; ; ++i)); do
