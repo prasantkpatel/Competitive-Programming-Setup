@@ -1,24 +1,12 @@
 <snippet>
 	<content><![CDATA[
-template<typename T, int max_size=1000000>
+template<typename T>
 class sparse_table {
 private:
-	struct constant_log {
-	private:
-		constexpr static int mxN = max_size;
-		int log_table[mxN + 1] = {};
+	inline static int LOG(int n) {
+		return sizeof(int) * CHAR_BIT - __builtin_clz(n) - 1;
+	}
 
-	public:
-		constant_log() {
-			for(int i = 2; i <= mxN; ++i)
-				log_table[i] = log_table[i / 2] + 1;
-		}
-
-		int operator[](const int x) const {
-			assert(x <= mxN);
-			return log_table[x];
-		}
-	};
 	struct op {
 	private:
 		T __identity;
@@ -46,7 +34,6 @@ private:
 		}
 	};
 
-	const static inline constant_log LOG;
 	vector<vector<T>> table;
 	int n, spS;
 	op operation;
@@ -68,14 +55,14 @@ public:
 		operation = _operation;
 	}
 
-	sparse_table(function<T(T, T)> _combinator, T _identity, bool _is_overalp_agnostic) {
+	sparse_table(T _identity, function<T(T, T)> _combinator, bool _is_overalp_agnostic) {
 		n = 0, spS = 0;
 		operation = op(_identity, _combinator, _is_overalp_agnostic);
 	}
 
 	void build(int _n) {
 		n = _n;
-		spS = LOG[n];
+		spS = LOG(n);
 
 		table.resize(n);
 		for(int i = 0; i < n; ++i) {
@@ -85,7 +72,7 @@ public:
 
 	void build(vector<T> &a) {
 		n = max(n, (int)a.size());
-		spS = LOG[n];
+		spS = LOG(n);
 
 		table.resize(n);
 		for(int i = 0; i < n; ++i) {
@@ -109,18 +96,18 @@ public:
 			cerr << "Error: invalid range [" << l << ", " << r << "] in query to sparse table" << nl;
 
 		} else if(operation.is_overlap_agnostic()) {
-			res = operation.combine(table[l][LOG[r - l + 1]], table[r - (1 << LOG[r - l + 1]) + 1][LOG[r - l + 1]]);
+			res = operation.combine(table[l][LOG(r - l + 1)], table[r - (1 << LOG(r - l + 1)) + 1][LOG(r - l + 1)]);
 			
 		} else {
 			while(l <= r) {
-				res = operation.combine(res, table[l][LOG[r - l + 1]]);
-				l += 1 << LOG[r - l + 1];
+				res = operation.combine(res, table[l][LOG(r - l + 1)]);
+				l += 1 << LOG(r - l + 1);
 			}
 		}
 		return res;
 	}
 };
-${1}${0}
+$1 $0
 ]]></content>
 	<!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
 	<tabTrigger>sparse</tabTrigger>

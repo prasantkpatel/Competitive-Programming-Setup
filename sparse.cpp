@@ -1,60 +1,3 @@
-/**
-  * Author: Prasant Kumar Patel
-  * Profiles:
-  * 	Codeforces - prasantkpatel, 
-  *		Codechef - mania_prashant1, 
-  *		AtCoder - prasantkpatel,
-  * File Name: b.cpp
-*/
-
-// Libraries
-#include <bits/stdc++.h>
-#include <unistd.h>
-using namespace std;
-
-// Optimization
-#pragma GCC optimize ("O3")
-#pragma GCC target ("sse4")
-
-// Macros
-#define nitro std::ios_base::sync_with_stdio(false), std::cin.tie(NULL)
-#define pb push_back
-#define eb emplace_back
-#define lb lower_bound
-#define ub upper_bound
-#define fi first
-#define se second
-#define sz(x) (int)x.size()
-#define all(v) v.begin(), v.end()
-#define case_g(x) cout<<"Case #"<<x<<": "
-
-// Aliases
-using ll = long long;
-using ld = long double;
-using vi = std::vector<int>;
-using vl = std::vector<ll>;
-using vb = std::vector<bool>;
-using pii = std::pair<int, int>;
-using pll = std::pair<ll, ll>;
-using vii = std::vector<pii>;
-using vll = std::vector<pll>;
-using vvi = std::vector<vi>;
-using vvl = std::vector<vl>;
-using vvb = std::vector<vb>;
-
-// Constants
-constexpr ll mod = 1000000007;
-constexpr ld pi = 3.141592653589793L;
-constexpr char nl = '\n';
-
-// Colours for fun :)
-#define RED "\033[31m"
-#define GREEN "\033[32m"
-#define RESET "\033[0m"
-
-void precompute() {
-}
-
 template<typename T>
 class sparse_table {
 private:
@@ -110,7 +53,7 @@ public:
 		operation = _operation;
 	}
 
-	sparse_table(T _identity, function<T(T, T)> _combinator, bool _is_overalp_agnostic) {
+	sparse_table(function<T(T, T)> _combinator, T _identity, bool _is_overalp_agnostic) {
 		n = 0, spS = 0;
 		operation = op(_identity, _combinator, _is_overalp_agnostic);
 	}
@@ -162,58 +105,3 @@ public:
 		return res;
 	}
 };
-
-void solve(int tc=1) {
-	int n;
-	cin >> n;
-	
-	vi a(n);
-	for(int i = 0; i < n; ++i)
-		cin >> a[i];
-	
-	sparse_table<int> sps(sparse_table<int>::use::GCD);
-	sps.build(a);
-	
-	vi ans(n);
-	for(int l = 0, r = 0; r < n; ++r) {
-		int len = r - l + 1, x = 0;
-		for(int j = len; j > 0; j /= 2) {
-			while(x + j <= len) {
-				int y = x + j, _l = r - y + 1; //suffix of length y
-				if(sps.query(_l, r) > y)
-					x += j;
-				else
-					break;
-			}
-		}
-		++x;
-		if(x <= len && sps.query(r - x + 1, r) == x)
-			ans[r] = (r - 1 < 0 ? 0 : ans[r - 1]) + 1, l = r + 1;
-		else
-			ans[r] = (r - 1 < 0 ? 0 : ans[r - 1]);
-	}
-	
-	for(auto ele : ans)
-		cout << ele << " ";
-	cout << nl;
-}
-
-int main() {
-	nitro;
-	
-	#ifdef USE_IO_FILES
-	freopen("input.txt", "r", stdin);
-	freopen("output.txt", "w", stdout);
-	freopen("error.txt", "w", stderr);
-	#endif
-
-	precompute();
-
-	int tc = 1;
-
- 	for(int i = 1; i <= tc; ++i) {
-		//case_g(i);
-		solve(i);
-	}
-	return 0;
-}
