@@ -92,6 +92,13 @@ private:
 		T operator^(T x) {return val ^ x;}
 		T operator&(T x) {return val & x;}
 		T operator|(T x) {return val | x;}
+		T operator+=(T x) {return (val += x);}
+		T operator-=(T x) {return (val -= x);}
+		T operator*=(T x) {return (val *= x);}
+		T operator/=(T x) {return (val /= x);}
+		T operator++() {return (val++);}
+		T operator--() {return (val--);}
+
 
 		friend ostream& operator<<(ostream &o, node &obj) {
 			o << obj.val;
