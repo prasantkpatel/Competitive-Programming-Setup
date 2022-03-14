@@ -2,7 +2,7 @@
   * Author: Prasant Kumar Patel
   * Profiles:
   * 	Codeforces - prasantkpatel, 
-  *		Codechef - mania_prashant1, 
+  *		Codechef - mania_prashant, 
   *		AtCoder - prasantkpatel,
   * File Name: a.cpp
 */
@@ -56,23 +56,17 @@ void precompute() {
 }
 
 void solve(int tc=1) {
-	int n;
-	cin >> n;
+	ll v, a, b, c;
+	cin >> v >> a >> b >> c;
 
-	set<int> s;
-	for(int i = 2; i <= 2*n; ++i)
-		s.insert(i);
+	v %= (a + b + c);
 
-	vi ans{1};
-	for(int i = 2; i <= n; ++i) {
-		if(i % 2 == 0)
-			s.erase(ans.back() * 2), ans.pb(ans.back() * 2);
-		else
-			ans.pb(*s.begin()), s.erase(s.begin());
-	}
-	for(auto x : ans)
-		cout << x << " ";
-	cout << nl;
+	if(a > v) 
+		cout << "F" << nl;
+	else if(b > v - a)
+		cout << "M" << nl;
+	else
+		cout << "T" << nl;
 }
 
 int main() {
@@ -88,8 +82,7 @@ int main() {
 
 	int tc = 1;
 
- 	cin >> tc;
-	for(int i = 1; i <= tc; ++i) {
+ 	for(int i = 1; i <= tc; ++i) {
 		//case_g(i);
 		solve(i);
 	}

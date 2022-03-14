@@ -2,7 +2,7 @@
   * Author: Prasant Kumar Patel
   * Profiles:
   *     Codeforces - prasantkpatel, 
-  *        Codechef - mania_prashant1, 
+  *        Codechef - mania_prashant, 
   *        AtCoder - prasantkpatel,
   * File Name: b.cpp
 */
@@ -27,6 +27,36 @@ using namespace std;
 #define sz(x) (int)x.size()
 #define all(v) v.begin(), v.end()
 #define case_g(x) cout<<"Case #"<<x<<": "
+
+// Debugging template
+#ifndef LOCAL
+#define cerr if (false) cerr
+#endif
+void __print(int x) {cerr << x;}
+void __print(long x) {cerr << x;}
+void __print(long long x) {cerr << x;}
+void __print(unsigned x) {cerr << x;}
+void __print(unsigned long x) {cerr << x;}
+void __print(unsigned long long x) {cerr << x;}
+void __print(float x) {cerr << x;}
+void __print(double x) {cerr << x;}
+void __print(long double x) {cerr << x;}
+void __print(char x) {cerr << '\'' << x << '\'';}
+void __print(const char *x) {cerr << '\"' << x << '\"';}
+void __print(const string &x) {cerr << '\"' << x << '\"';}
+void __print(bool x) {cerr << (x ? "true" : "false");}
+template<typename T, typename V>
+void __print(const pair<T, V> &x) {cerr << '{'; __print(x.first); cerr << ','; __print(x.second); cerr << '}';}
+template<typename T>
+void __print(const T &x) {int f = 0; cerr << '{'; for (auto &i: x) cerr << (f++ ? "," : ""), __print(i); cerr << "}";}
+void _print() {cerr << "]\n";}
+template <typename T, typename... V>
+void _print(T t, V... v) {__print(t); if (sizeof...(v)) cerr << ", "; _print(v...);}
+template<typename T>
+void _printA(T *t, long long sz) { cout<<" { "; for (long long i=0; i<sz; i++) cout<<"["<<i<<"] = "<< t[i]<<endl; cout<<" } \n";}
+#define debug(x...) cerr << "[" << #x << "] = ["; _print(x)
+#define debugA(x, y) cerr << "[" << #x << "] = "; _printA(x, y)
+
 
 // Aliases
 using ll = long long;
@@ -56,36 +86,34 @@ void precompute() {
 }
 
 void solve(int tc=1) {
-    int n;
-    cin >> n;
+    debug(tc);
+    int n, c;
+    cin >> n >> c;
 
-    vector<int> a(n);
+    vi a(n);
     for(int i = 0; i < n; ++i)
         cin >> a[i];
 
-    n = min(n, 10);
-    a.resize(n);
-    
+    c = *max_element(all(a));
 
-    for(int i=0; i<n; i++){
-            for(int j=0; j<n; j++){
-                if(j!=i){
-                    for(int k=0; k<n; k++){
-                        if(k!=j && k!=i){
-                            for(int l=0; l<n; l++){
-                                if(l!=i && l!=j && l!=k){
-                                    if(__builtin_popcount(a[i]^a[j])==__builtin_popcount(a[k]^a[l])){
-                                        cout<<i+1<<" "<<j+1<<" "<<k+1<<" "<<l+1<<endl;
-                                        return;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+    int kitne[2*c + 1] = {};
+    for(auto x : a)
+        kitne[x] = 1;
+
+    for(int i = 1; i <= 2*c; ++i)
+        kitne[i] += kitne[i - 1];
+
+    for(auto x : a) {
+        for(int j = 1; j <= (c / x); ++j) {
+            debug(j*x, (j + 1)*x - 1);
+            debug(kitne[(j + 1)*x - 1] - kitne[j*x - 1]);
+            if((kitne[(j + 1)*x - 1] - kitne[j*x - 1]) && (kitne[j] - kitne[j - 1])) {
+                cout << "No" << nl;
+                return;
             }
         }
-    cout << -1 << nl;
+    }
+    cout << "Yes" << nl;
 }
 
 int main() {

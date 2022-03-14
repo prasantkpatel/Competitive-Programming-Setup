@@ -116,20 +116,19 @@ void precompute() {
 }
 
 void solve(int tc) {
-	cout << 8 << nl;
-	for(int i = 0; i < 16; ++i) {
-		for(int j = i + 1; j < 16; ++j) {
-			cout << 0 << " " ;
-		}
-		cout << nl;
-	}
+	int n = 2e5;
+	uniform_int_distribution<int> gen(1, n);
+
+	cout << n << nl;
+	while(n--)
+		cout << gen(rng) << " " << gen(rng) << nl;
 }
 
 int main() {
 	nitro;
 	
 	int tc = 1;
- 	//cin >> tc;
+ 	tc = 1;
 	
 	precompute();
 	for(int i = 1; i <= tc; ++i) {

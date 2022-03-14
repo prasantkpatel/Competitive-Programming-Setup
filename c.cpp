@@ -2,9 +2,9 @@
   * Author: Prasant Kumar Patel
   * Profiles:
   * 	Codeforces - prasantkpatel, 
-  *		Codechef - mania_prashant1, 
+  *		Codechef - mania_prashant, 
   *		AtCoder - prasantkpatel,
-  * File Name: c.cpp
+  * File Name: c.cpp 
 */
 
 // Libraries
@@ -27,6 +27,35 @@ using namespace std;
 #define sz(x) (int)x.size()
 #define all(v) v.begin(), v.end()
 #define case_g(x) cout<<"Case #"<<x<<": "
+
+// Debugging template
+#ifndef LOCAL
+#define cerr if (false) cerr
+#endif
+void __print(int x) {cerr << x;}
+void __print(long x) {cerr << x;}
+void __print(long long x) {cerr << x;}
+void __print(unsigned x) {cerr << x;}
+void __print(unsigned long x) {cerr << x;}
+void __print(unsigned long long x) {cerr << x;}
+void __print(float x) {cerr << x;}
+void __print(double x) {cerr << x;}
+void __print(long double x) {cerr << x;}
+void __print(char x) {cerr << '\'' << x << '\'';}
+void __print(const char *x) {cerr << '\"' << x << '\"';}
+void __print(const string &x) {cerr << '\"' << x << '\"';}
+void __print(bool x) {cerr << (x ? "true" : "false");}
+template<typename T, typename V>
+void __print(const pair<T, V> &x) {cerr << '{'; __print(x.first); cerr << ','; __print(x.second); cerr << '}';}
+template<typename T>
+void __print(const T &x) {int f = 0; cerr << '{'; for (auto &i: x) cerr << (f++ ? "," : ""), __print(i); cerr << "}";}
+void _print() {cerr << "]\n";}
+template <typename T, typename... V>
+void _print(T t, V... v) {__print(t); if (sizeof...(v)) cerr << ", "; _print(v...);}
+template<typename T>
+void _printA(T *t, long long sz) { cout<<" { "; for (long long i=0; i<sz; i++) cout<<"["<<i<<"] = "<< t[i]<<endl; cout<<" } \n";}
+#define debug(x...) cerr << "[" << #x << "] = ["; _print(x)
+#define debugA(x, y) cerr << "[" << #x << "] = "; _printA(x, y)
 
 // Aliases
 using ll = long long;
@@ -56,7 +85,44 @@ void precompute() {
 }
 
 void solve(int tc=1) {
-	
+	int n;
+	cin >> n;
+
+	vector<array<int, 3>> p(n);
+	for(int i = 0; i < n; ++i)
+		cin >> p[i][0] >> p[i][1], p[i][2] = i;
+
+	string s;
+	cin >> s;
+
+	sort(all(p), [&](const auto &x, const auto &y) {
+		if(x[1] == y[1])
+			return x[0] < y[0];
+		return x[1] < y[1];
+	});
+
+	debug(p);
+
+	vii a;
+	for(int j = 0; j < n; ++j) {
+		a.pb({p[j][0], p[j][2]});
+		if(j + 1 >= n || p[j][1] != p[j + 1][1]) {
+			for(int i = 0; i < sz(a); ++i) {
+				if(s[a[i].se] == 'R') {
+					for(int j = sz(a) - 1; j > i; --j) {
+						if(s[a[j].se] == 'L') {
+							cout << "Yes" << nl;
+							return;
+						}
+					}
+					break;
+				}
+			}
+			while(!a.empty())
+				a.pop_back();
+		} 
+	}
+	cout << "No" << nl;
 }
 
 int main() {
@@ -72,7 +138,7 @@ int main() {
 
 	int tc = 1;
 
- 	`for(int i = 1; i <= tc; ++i) {
+ 	for(int i = 1; i <= tc; ++i) {
 		//case_g(i);
 		solve(i);
 	}
