@@ -86,7 +86,6 @@ void precompute() {
 }
 
 void solve(int tc=1) {
-    debug(tc);
     int n, c;
     cin >> n >> c;
 
@@ -105,9 +104,7 @@ void solve(int tc=1) {
 
     for(auto x : a) {
         for(int j = 1; j <= (c / x); ++j) {
-            debug(j*x, (j + 1)*x - 1);
-            debug(kitne[(j + 1)*x - 1] - kitne[j*x - 1]);
-            if((kitne[(j + 1)*x - 1] - kitne[j*x - 1]) && (kitne[j] - kitne[j - 1])) {
+            if((kitne[(j + 1)*x - 1] - kitne[j*x - 1]) && !(kitne[j] - kitne[j - 1])) {
                 cout << "No" << nl;
                 return;
             }

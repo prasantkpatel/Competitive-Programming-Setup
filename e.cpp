@@ -28,6 +28,36 @@ using namespace std;
 #define all(v) v.begin(), v.end()
 #define case_g(x) cout<<"Case #"<<x<<": "
 
+// Debugging template
+#ifndef LOCAL
+#define cerr if (false) cerr
+#endif
+void __print(int x) {cerr << x;}
+void __print(long x) {cerr << x;}
+void __print(long long x) {cerr << x;}
+void __print(unsigned x) {cerr << x;}
+void __print(unsigned long x) {cerr << x;}
+void __print(unsigned long long x) {cerr << x;}
+void __print(float x) {cerr << x;}
+void __print(double x) {cerr << x;}
+void __print(long double x) {cerr << x;}
+void __print(char x) {cerr << '\'' << x << '\'';}
+void __print(const char *x) {cerr << '\"' << x << '\"';}
+void __print(const string &x) {cerr << '\"' << x << '\"';}
+void __print(bool x) {cerr << (x ? "true" : "false");}
+template<typename T, typename V>
+void __print(const pair<T, V> &x) {cerr << '{'; __print(x.first); cerr << ','; __print(x.second); cerr << '}';}
+template<typename T>
+void __print(const T &x) {int f = 0; cerr << '{'; for (auto &i: x) cerr << (f++ ? "," : ""), __print(i); cerr << "}";}
+void _print() {cerr << "]\n";}
+template <typename T, typename... V>
+void _print(T t, V... v) {__print(t); if (sizeof...(v)) cerr << ", "; _print(v...);}
+template<typename T>
+void _printA(T *t, long long sz) { cout<<" { "; for (long long i=0; i<sz; i++) cout<<"["<<i<<"] = "<< t[i]<<endl; cout<<" } \n";}
+#define debug(x...) cerr << "[" << #x << "] = ["; _print(x)
+#define debugA(x, y) cerr << "[" << #x << "] = "; _printA(x, y)
+
+
 // Aliases
 using ll = long long;
 using ld = long double;
@@ -43,7 +73,7 @@ using vvl = std::vector<vl>;
 using vvb = std::vector<vb>;
 
 // Constants
-constexpr ll mod = 1000000007;
+constexpr ll mod = 998244353;
 constexpr ld pi = 3.141592653589793L;
 constexpr char nl = '\n';
 
@@ -52,49 +82,83 @@ constexpr char nl = '\n';
 #define GREEN "\033[32m"
 #define RESET "\033[0m"
 
-void precompute() {
+// Binary Indexed Tree - 1 indexing
+const int mxN = 2e5 + 1; //size
+
+ll f[mxN], fact[mxN], t[mxN];
+
+void add(int k, ll x) {
+	while (k <= mxN) {
+		f[k] += x;
+		k += k&-k;
+	}
 }
 
-const ll INF = 1LL << 60;
+ll sum(int k) {
+	ll s = 0;
+	while (k >= 1) {
+		s += f[k];
+		k -= k&-k;
+	}
+	return s;
+}
+
+ll get(int l, int r) {
+	return sum(r) - sum(l - 1);
+}
+
+// Modular Inverse
+ll modinv(ll a, ll MOD=mod) {
+	ll m = MOD, y = 0, x = 1;
+	while (a > 1) {
+		ll q = a / m, t = m;
+		m = a % m;
+		a = t;
+		t = y;
+		y = x - q * y;
+		x = t;
+	}
+	return x < 0 ? x + mod : x;
+}
+
+void precompute() {
+	fact[0] = 1;
+	for(int i = 1; i < mxN; ++i)
+		fact[i] = (fact[i - 1] * i) % mod;
+}
 
 void solve(int tc=1) {
 	int n, m;
 	cin >> n >> m;
 
-	vector<array<int, 3>> e(m);
-	for(int i = 0; i < m; ++i) {
-		int u, v, w; cin >> u >> v >> w;
-		e[i] = {w, u, v};
+	for(int i = 0; i < n; ++i) {
+		int x; cin >> x;
+		add(x, 1);
 	}
 
-	sort(all(e));
-	vector<pll> adj[n + 1];
-	int ans = m;
+	vi a(m);
+	for(int i = 0; i < m; ++i)
+		cin >> a[i];
 
-	for(auto [w, u, v] : e) {
-		vl d(n + 1, INF);
-		bool vis[n + 1] = {};
-		priority_queue<pll, vll, greater<pll>> q;
+	ll fct = fact[n - 1];
+	for(int i = 1; i <= mxN; ++i)
+		fct = fct * modinv(fact[get(i, i)]) % mod;
 
-		d[u] = 0, q.push({d[u], u});
-		while(!q.empty()) {
-			auto [_d, _u] = q.top(); q.pop();
-			if(vis[_u])
-				continue;
+	for(int i = 0; i < min(n, m); ++i)
+		++t[a[i]];
 
-			vis[_u] = 1;
-			for(auto &[_w, _v] : adj[_u]) {
-				d[_v] = min(d[_v], d[_u] + _w);
-				q.push({d[_v], _v});
-			}
-		}
-
-		if(d[v] == INF || d[v] > w) {
-			adj[u].pb({w, v});
-			adj[v].pb({w, u});
-			--ans;
-		}
+	ll ans = (n < m);
+	for(int i = 0; n < m && i < n; ++i) {
+		ans = (ans && (get(a[i], a[i]) == t[a[i]]));
 	}
+	for(int i = 0; i < min(n, m); ++i) {
+		debug(i + 1, fct, fct * get(1, a[i] - 1) % mod);
+		ans = (ans + fct * get(1, a[i] - 1) % mod) % mod;
+		fct = fct * modinv(n - i - 1) % mod;
+		fct = fct * get(a[i], a[i]) % mod;
+		add(a[i], -1);
+	}
+
 	cout << ans << nl;
 }
 

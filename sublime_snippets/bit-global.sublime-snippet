@@ -3,11 +3,11 @@
 // Binary Indexed Tree - 1 indexing
 const int ${1:mxN} = ${2:1e5+1}; //size
 
-ll t[$1];
+ll ${3:t}[$1];
 
 void add(int k, ll x) {
 	while (k <= $1) {
-		t[k] += x;
+		$3[k] += x;
 		k += k&-k;
 	}
 }
@@ -15,7 +15,7 @@ void add(int k, ll x) {
 ll sum(int k) {
 	ll s = 0;
 	while (k >= 1) {
-		s += t[k];
+		s += $3[k];
 		k -= k&-k;
 	}
 	return s;
