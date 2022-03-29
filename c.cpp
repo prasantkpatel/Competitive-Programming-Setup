@@ -4,7 +4,7 @@
   * 	Codeforces - prasantkpatel, 
   *		Codechef - mania_prashant, 
   *		AtCoder - prasantkpatel,
-  * File Name: c.cpp 
+  * File Name: c.cpp
 */
 
 // Libraries
@@ -57,6 +57,7 @@ void _printA(T *t, long long sz) { cout<<" { "; for (long long i=0; i<sz; i++) c
 #define debug(x...) cerr << "[" << #x << "] = ["; _print(x)
 #define debugA(x, y) cerr << "[" << #x << "] = "; _printA(x, y)
 
+
 // Aliases
 using ll = long long;
 using ld = long double;
@@ -88,41 +89,44 @@ void solve(int tc=1) {
 	int n;
 	cin >> n;
 
-	vector<array<int, 3>> p(n);
-	for(int i = 0; i < n; ++i)
-		cin >> p[i][0] >> p[i][1], p[i][2] = i;
-
-	string s;
-	cin >> s;
-
-	sort(all(p), [&](const auto &x, const auto &y) {
-		if(x[1] == y[1])
-			return x[0] < y[0];
-		return x[1] < y[1];
-	});
-
-	debug(p);
-
-	vii a;
-	for(int j = 0; j < n; ++j) {
-		a.pb({p[j][0], p[j][2]});
-		if(j + 1 >= n || p[j][1] != p[j + 1][1]) {
-			for(int i = 0; i < sz(a); ++i) {
-				if(s[a[i].se] == 'R') {
-					for(int j = sz(a) - 1; j > i; --j) {
-						if(s[a[j].se] == 'L') {
-							cout << "Yes" << nl;
-							return;
-						}
-					}
-					break;
-				}
-			}
-			while(!a.empty())
-				a.pop_back();
-		} 
+	vi b(n);
+	for(int i = 0; i < n; ++i) {
+		cin >> b[i];
 	}
-	cout << "No" << nl;
+
+	bool used[n] = {};
+	vi ans(n, -1);
+	for(int i = n - 1; i >= 0; --i) {
+		if(b[i] != -1 && i + 1 < n && !used[b[i]])
+			ans[i + 1] = b[i];
+		used[b[i]] = 1;
+	}
+
+	for(int i = 0, j = 0; i < n; ++i) {
+		if(ans[i] != -1)
+			continue;
+		while(j < n && used[j])
+			++j;
+		ans[i] = j;
+		used[j] = 1;
+	}
+
+	bool ok = 1, vis[n] = {};
+	int mex = 0;
+	for(int i = 0; i < n; ++i) {
+		vis[ans[i]] = 1;
+		while(mex < n && vis[mex])
+			++mex;
+		if(b[i] != -1 && b[i] != mex)
+			ok = 0;
+	}
+	debug(ans);
+	if(!ok)
+		cout << -1;
+	else 
+		for(auto &x : ans)
+			cout << x << " ";
+	cout << nl;
 }
 
 int main() {
@@ -138,7 +142,8 @@ int main() {
 
 	int tc = 1;
 
- 	for(int i = 1; i <= tc; ++i) {
+ 	cin >> tc;
+	for(int i = 1; i <= tc; ++i) {
 		//case_g(i);
 		solve(i);
 	}

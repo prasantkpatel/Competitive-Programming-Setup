@@ -29,9 +29,6 @@ using namespace std;
 #define case_g(x) cout<<"Case #"<<x<<": "
 
 // Debugging template
-#ifndef LOCAL
-#define cerr if (false) cerr
-#endif
 void __print(int x) {cerr << x;}
 void __print(long x) {cerr << x;}
 void __print(long long x) {cerr << x;}
@@ -54,8 +51,13 @@ template <typename T, typename... V>
 void _print(T t, V... v) {__print(t); if (sizeof...(v)) cerr << ", "; _print(v...);}
 template<typename T>
 void _printA(T *t, long long sz) { cout<<" { "; for (long long i=0; i<sz; i++) cout<<"["<<i<<"] = "<< t[i]<<endl; cout<<" } \n";}
+#ifndef LOCAL
+#define debug(...) 0
+#define debugA(x, y) 0
+#else
 #define debug(x...) cerr << "[" << #x << "] = ["; _print(x)
 #define debugA(x, y) cerr << "[" << #x << "] = "; _printA(x, y)
+#endif
 
 
 // Aliases
@@ -85,43 +87,147 @@ constexpr char nl = '\n';
 void precompute() {
 }
 
-void solve(int tc=1) {
-	ll n, x;
-	cin >> n >> x;
+int get_xor(int l, int r) {
+	if(l == r)
+		return l;
 
-	string s;
-	cin >> s;
+	int res = (l % 2 ? l++ : 0);
+	for(int j = r; j >= r + 1 - (r - l + 1) % 4; --j)
+		res ^= j;
 
+	return res;
+}
 
-	stack<char> st;
-	for(char c : s) {
-		if(c != 'U')
-			st.push(c);
-		else {
-			if(!st.empty() && st.top() != 'U')
-				st.pop();
-			else
-				st.push(c);
+// Binary Trie
+template <typename T = int>
+class BinaryTrie {
+	private:
+		struct node {
+			node *left, *right;
+			
+			node() {
+				left = right = nullptr;
+			}
+		};
+		
+		node* root;
+		int n;
+		
+		void clear(node* _root) {
+			if(_root == nullptr)
+				return;
+				
+			clear(_root -> left);
+			clear(_root -> right);
+			
+			delete _root;
 		}
+		
+	public:
+		BinaryTrie() {
+			root = new node();
+			n = sizeof(T) * CHAR_BIT;
+		}
+		
+		~BinaryTrie() {
+			clear(root);
+		}
+		
+		void insert(T x) {
+			node* temp = root;
+			for(int i = n - 1; i >= 0; --i) {
+				if(x & (1 << i)) {
+					if(temp -> right == nullptr)
+						temp -> right = new node();
+					temp = temp -> right;
+					
+				} else {
+					if(temp -> left == nullptr)
+						temp -> left = new node();
+					temp = temp -> left;
+				}
+			}
+		}
+		
+		T max_xor(T x) {
+			T res = 0;
+			node* temp = root;
+
+			for(int i = n - 1; i >= 0; --i) {
+				assert(temp -> left != nullptr || temp -> right != nullptr);
+				
+				if(x & (1 << i)) {
+					if(temp -> left != nullptr)
+						res |= (1 << i), temp = temp -> left;
+					else
+						temp = temp -> right;
+						
+				} else {
+					if(temp -> right != nullptr)
+						res |= (1 << i), temp = temp -> right;
+					else
+						temp = temp -> left;
+						
+				}
+			}
+			return res;
+		}
+
+		T min_xor(T x) {
+			T res = 0;
+			node* temp = root;
+
+			for(int i = n - 1; i >= 0; --i) {
+				assert(temp -> left != nullptr || temp -> right != nullptr);
+				
+				if(x & (1 << i)) {
+					if(temp -> right != nullptr)
+						temp = temp -> right;
+					else
+						res |= (1 << i), temp = temp -> left;
+						
+				} else {
+					if(temp -> left != nullptr)
+						temp = temp -> left;
+					else
+						res |= (1 << i), temp = temp -> right;
+						
+				}
+			}
+			return res;
+		}
+};
+
+
+void solve(int tc=1) {
+	int l, r;
+	cin >> l >> r;
+
+	int n = r - l + 1;
+	vi a(n);
+	for(int i = 0; i < n; ++i)
+		cin >> a[i];
+
+	int tot_xor = 0;
+	for(auto x : a)
+		tot_xor ^= x;
+
+	if((r - l + 1) % 2) {
+		cout << (tot_xor ^ get_xor(l, r)) << nl;
+		return;
 	}
 
-	string new_op;
-	while(!st.empty())
-		new_op.pb(st.top()), st.pop();
-	reverse(all(new_op));
+	BinaryTrie<int> tr;
+	for(auto x : a)
+		tr.insert(x);
 
-	debug(new_op);
-
-	for(char c : new_op) {
-		if(c == 'U')
-			x /= 2;
-		else if(c == 'L')
-			x = 2*x;
-		else
-			x = 2*x + 1;
+	for(auto x : a) {
+		int is = tot_xor ^ x ^ get_xor(l + 1, r);
+		if(tr.min_xor(is) == l && tr.max_xor(is) == r) {
+			cout << is << nl;
+			return;
+		}		
 	}
-
-	cout << x << nl;
 }
 
 int main() {
@@ -137,7 +243,8 @@ int main() {
 
 	int tc = 1;
 
- 	for(int i = 1; i <= tc; ++i) {
+	cin >> tc;
+	for(int i = 1; i <= tc; ++i) {
 		//case_g(i);
 		solve(i);
 	}

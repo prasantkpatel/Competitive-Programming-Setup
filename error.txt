@@ -1,3 +1,0 @@
-[i + 1, fct, fct * get(1, a[i] - 1) % mod] = [1, 1, 0]
-[i + 1, fct, fct * get(1, a[i] - 1) % mod] = [2, 1, 0]
-[i + 1, fct, fct * get(1, a[i] - 1) % mod] = [3, 1, 1]
