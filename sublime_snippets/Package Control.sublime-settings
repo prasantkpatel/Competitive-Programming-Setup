@@ -1,0 +1,14 @@
+{
+	"bootstrapped": true,
+	"in_process_packages":
+	[
+	],
+	"installed_packages":
+	[
+		"A File Icon",
+		"Discord Rich Presence",
+		"Dockerfile Syntax Highlighting",
+		"Package Control",
+		"Terminus",
+	],
+}

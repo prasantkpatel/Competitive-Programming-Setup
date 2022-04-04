@@ -28,36 +28,6 @@ using namespace std;
 #define all(v) v.begin(), v.end()
 #define case_g(x) cout<<"Case #"<<x<<": "
 
-// Debugging template
-#ifndef LOCAL
-#define cerr if (false) cerr
-#endif
-void __print(int x) {cerr << x;}
-void __print(long x) {cerr << x;}
-void __print(long long x) {cerr << x;}
-void __print(unsigned x) {cerr << x;}
-void __print(unsigned long x) {cerr << x;}
-void __print(unsigned long long x) {cerr << x;}
-void __print(float x) {cerr << x;}
-void __print(double x) {cerr << x;}
-void __print(long double x) {cerr << x;}
-void __print(char x) {cerr << '\'' << x << '\'';}
-void __print(const char *x) {cerr << '\"' << x << '\"';}
-void __print(const string &x) {cerr << '\"' << x << '\"';}
-void __print(bool x) {cerr << (x ? "true" : "false");}
-template<typename T, typename V>
-void __print(const pair<T, V> &x) {cerr << '{'; __print(x.first); cerr << ','; __print(x.second); cerr << '}';}
-template<typename T>
-void __print(const T &x) {int f = 0; cerr << '{'; for (auto &i: x) cerr << (f++ ? "," : ""), __print(i); cerr << "}";}
-void _print() {cerr << "]\n";}
-template <typename T, typename... V>
-void _print(T t, V... v) {__print(t); if (sizeof...(v)) cerr << ", "; _print(v...);}
-template<typename T>
-void _printA(T *t, long long sz) { cout<<" { "; for (long long i=0; i<sz; i++) cout<<"["<<i<<"] = "<< t[i]<<endl; cout<<" } \n";}
-#define debug(x...) cerr << "[" << #x << "] = ["; _print(x)
-#define debugA(x, y) cerr << "[" << #x << "] = "; _printA(x, y)
-
-
 // Aliases
 using ll = long long;
 using ld = long double;
@@ -86,47 +56,25 @@ void precompute() {
 }
 
 void solve(int tc=1) {
-	int n;
-	cin >> n;
+	string s;
+	cin >> s;
 
-	vi b(n);
-	for(int i = 0; i < n; ++i) {
-		cin >> b[i];
-	}
+	int n = sz(s);
+	int dp[n] = {};
 
-	bool used[n] = {};
-	vi ans(n, -1);
-	for(int i = n - 1; i >= 0; --i) {
-		if(b[i] != -1 && i + 1 < n && !used[b[i]])
-			ans[i + 1] = b[i];
-		used[b[i]] = 1;
-	}
+	int last[26] = {};
+	memset(last, -1, sizeof(last));
 
-	for(int i = 0, j = 0; i < n; ++i) {
-		if(ans[i] != -1)
-			continue;
-		while(j < n && used[j])
-			++j;
-		ans[i] = j;
-		used[j] = 1;
+	dp[0] = 1, last[s[0] - 'a'] = 0;
+	for(int i = 1; i < n; ++i) {
+		dp[i] = 1 + dp[i - 1];
+		if(last[s[i] - 'a'] != -1) {
+			int j = last[s[i] - 'a'];
+			dp[i] = min(dp[i], i - j - 1 + (j - 1 >= 0 ? dp[j - 1] : 0));
+		}
+		last[s[i] - 'a'] = i;
 	}
-
-	bool ok = 1, vis[n] = {};
-	int mex = 0;
-	for(int i = 0; i < n; ++i) {
-		vis[ans[i]] = 1;
-		while(mex < n && vis[mex])
-			++mex;
-		if(b[i] != -1 && b[i] != mex)
-			ok = 0;
-	}
-	debug(ans);
-	if(!ok)
-		cout << -1;
-	else 
-		for(auto &x : ans)
-			cout << x << " ";
-	cout << nl;
+	cout << dp[n - 1] << nl;
 }
 
 int main() {

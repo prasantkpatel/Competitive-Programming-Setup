@@ -4,7 +4,7 @@
   * 	Codeforces - prasantkpatel, 
   *		Codechef - mania_prashant, 
   *		AtCoder - prasantkpatel,
-  * File Name: e.cpp
+  * File Name: f.cpp
 */
 
 // Libraries
@@ -87,6 +87,59 @@ constexpr char nl = '\n';
 void precompute() {
 }
 
+// Internal api - 1 indexing
+// Exposed api - 0 indexing
+template <typename T>
+class fenwick {
+private:
+	int n;
+	vector<T> tr;
+
+public:
+	fenwick(int _n) {
+		n = _n;
+		tr.resize(n + 1, T(0));
+	}
+
+	template <typename V>
+	void build(vector<V> &a) {
+		n = max(n, sz(a));
+		tr.resize(n + 1);
+		for(int i = 0; i < sz(a); ++i)
+			add(i, static_cast<T>(a[i]));
+	}
+
+	template <typename V>
+	void build(V a[], int m) {
+		n = max(n, m);
+		tr.resize(n + 1);
+		for(int i = 0; i < m; ++i)
+			add(i, static_cast<T>(a[i]));
+	}
+
+	void add(int k, ll x) {
+		++k;
+		while (k <= n) {
+			tr[k] += x;
+			k += k&-k;
+		}
+	}
+
+	T sum(int k) {
+		++k;
+		ll s = 0;
+		while (k >= 1) {
+			s += tr[k];
+			k -= k&-k;
+		}
+		return s;
+	}
+
+	T query(int l, int r) {
+		return sum(r) - (l - 1 > 0 ? sum(l - 1) : 0);
+	}
+};
+
 void solve(int tc=1) {
 	int n;
 	cin >> n;
@@ -94,16 +147,18 @@ void solve(int tc=1) {
 	string s;
 	cin >> s;
 
+	int d = 0;
+	ll ans = 0;
+
+	vector<fenwick<int>> tr(3, fenwick<int>(2*n));
+	tr[0].add(n, 1);
 	for(int i = 0; i < n; ++i) {
-		int x = 0, y = 0, ans = 0;
-		for(int j = i; j >= 0; --j) {
-			x += (s[j] == '+');
-			y += (s[j] == '-');
-			if(y - x >= 0 && (y - x) % 3 == 0)
-				++ans;
-		}
-		cout << i << ": " << ans << nl;
+		d += (s[i] == '-') - (s[i] == '+');
+		ll md = (d % 3 + 3) % 3;
+		ans += tr[md].sum((d - md) / 3 + n);
+		tr[md].add((d - md) / 3 + n, 1);
 	}
+	cout << ans << nl;
 }
 
 int main() {
